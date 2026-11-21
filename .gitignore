@@ -1,0 +1,25 @@
+# Binaries and build artifacts
+dist/
+bin/
+*.exe
+*.app
+.build/
+
+# OS and editor files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Logs and temp files
+*.log
+*.tmp
+state.json

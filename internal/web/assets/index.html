@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>GridShield VPN — Sudoku 4×4 Obfuscated Tunnel</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-grid" aria-hidden="true">
+          <span>4</span><span>1</span><span>3</span><span>2</span>
+          <span>2</span><span>3</span><span>4</span><span>1</span>
+          <span>1</span><span>4</span><span>2</span><span>3</span>
+          <span>3</span><span>2</span><span>1</span><span>4</span>
+        </div>
+        <div>
+          <h1>GridShield</h1>
+          <p class="subtitle">Sudoku 4×4 VPN Core</p>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Primary navigation">
+        <button type="button" class="nav-item" data-view="dashboard" aria-current="page">
+          <span class="nav-dot" aria-hidden="true"></span>
+          Dashboard
+        </button>
+        <button type="button" class="nav-item" data-view="profiles">
+          <span class="nav-dot" aria-hidden="true"></span>
+          Nodes &amp; Links
+        </button>
+        <button type="button" class="nav-item" data-view="server">
+          <span class="nav-dot" aria-hidden="true"></span>
+          Server &amp; Tools
+        </button>
+        <button type="button" class="nav-item" data-view="connections">
+          <span class="nav-dot" aria-hidden="true"></span>
+          Traffic &amp; Logs
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="pill-row">
+          <span class="badge" id="env-badge">darwin/arm64</span>
+          <span class="badge" id="ver-badge">v1.0.0</span>
+        </div>
+        <label class="theme-picker">
+          <span>Theme</span>
+          <select id="theme-select" aria-label="Color theme">
+            <option value="system">System</option>
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div id="toast-banner" class="toast" role="status" aria-live="polite" hidden></div>
+
+      <!-- VIEW 1: DASHBOARD -->
+      <section class="view-section" id="view-dashboard" aria-label="Dashboard">
+        <header class="view-header">
+          <div>
+            <h2>Tunnel Overview</h2>
+            <p class="muted">Zero-randomness 4×4 Sudoku steganography + X25519 PFS + AEAD encryption</p>
+          </div>
+          <div class="header-actions">
+            <button type="button" class="btn secondary" id="btn-local-demo">⚡ Quick Local Demo</button>
+            <button type="button" class="btn primary" command="show-modal" commandfor="modal-import">Import sudoku://</button>
+          </div>
+        </header>
+
+        <div class="hero-grid">
+          <div class="card hero-card">
+            <div class="power-wrap">
+              <button type="button" id="btn-power" class="power-orb" aria-pressed="false">
+                <span class="power-ring" aria-hidden="true"></span>
+                <span class="power-label" id="power-label">CONNECT</span>
+              </button>
+              <div class="hero-meta">
+                <div class="status-line">
+                  <span class="status-indicator" id="status-dot"></span>
+                  <strong id="status-text">Disconnected</strong>
+                  <span class="muted" id="uptime-text"></span>
+                </div>
+                <div class="active-node-line" id="active-node-summary">No node selected</div>
+                <div class="proto-chips" id="proto-chips"></div>
+              </div>
+            </div>
+
+            <div class="quick-controls">
+              <div class="control-block">
+                <span class="control-title">Routing Mode</span>
+                <div class="segmented" role="group" aria-label="Routing mode">
+                  <button type="button" class="seg-btn" data-route="rule">Rule</button>
+                  <button type="button" class="seg-btn" data-route="global">Global</button>
+                  <button type="button" class="seg-btn" data-route="direct">Direct</button>
+                </div>
+              </div>
+
+              <label class="switch-row">
+                <div>
+                  <span class="control-title">OS System Proxy</span>
+                  <small class="muted" id="sysproxy-sub">One-click SOCKS5 + HTTP (no root required)</small>
+                </div>
+                <input id="toggle-sysproxy" type="checkbox" switch>
+              </label>
+
+              <label class="switch-row">
+                <div>
+                  <span class="control-title">Full-Device TUN Mode</span>
+                  <small class="muted" id="tun-sub">gVisor utun virtual NIC (requires sudo/admin)</small>
+                </div>
+                <input id="toggle-tun" type="checkbox" switch>
+              </label>
+            </div>
+          </div>
+
+          <div class="card metrics-card">
+            <div class="metrics-row">
+              <div class="metric">
+                <span class="metric-label">Download Speed</span>
+                <strong class="metric-val down" id="stat-down-speed">0 B/s</strong>
+                <small class="muted" id="stat-down-total">Total: 0 B</small>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Upload Speed</span>
+                <strong class="metric-val up" id="stat-up-speed">0 B/s</strong>
+                <small class="muted" id="stat-up-total">Total: 0 B</small>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Active Streams</span>
+                <strong class="metric-val" id="stat-conns">0</strong>
+                <small class="muted" id="stat-proxy-addr">Local port idle</small>
+              </div>
+            </div>
+            <div class="chart-box">
+              <canvas id="speed-chart" width="600" height="170" aria-label="Live upload and download throughput chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: PROFILES -->
+      <section class="view-section" id="view-profiles" aria-label="Nodes and Links" hidden>
+        <header class="view-header">
+          <div>
+            <h2>Server Nodes</h2>
+            <p class="muted">100% wire-compatible with SUDOKU-ASCII/sudoku servers &amp; <code>sudoku://</code> short links</p>
+          </div>
+          <div class="header-actions">
+            <button type="button" class="btn secondary" command="show-modal" commandfor="modal-import">Import Link</button>
+            <button type="button" class="btn primary" id="btn-new-profile" command="show-modal" commandfor="modal-profile">+ Add Node</button>
+          </div>
+        </header>
+
+        <div id="profiles-grid" class="profiles-grid"></div>
+      </section>
+
+      <!-- VIEW 3: SERVER & TOOLS -->
+      <section class="view-section" id="view-server" aria-label="Server and Tools" hidden>
+        <header class="view-header">
+          <div>
+            <h2>Sudoku Server &amp; Crypto Tools</h2>
+            <p class="muted">Run a built-in Sudoku server, generate Ed25519 master/split keys, or benchmark the 4×4 cipher</p>
+          </div>
+        </header>
+
+        <div class="tabs-container">
+          <div class="tablist" focusgroup="tablist nomemory" aria-label="Server and tool sections">
+            <button type="button" id="tab-srv" role="tab" aria-selected="true" focusgroupstart>Built-in Server</button>
+            <button type="button" id="tab-keygen" role="tab" aria-selected="false">Ed25519 KeyGen</button>
+            <button type="button" id="tab-bench" role="tab" aria-selected="false">Tunnel Self-Test</button>
+          </div>
+
+          <div class="tabpanels">
+            <div role="tabpanel" id="panel-srv" aria-labelledby="tab-srv">
+              <div class="card panel-inner">
+                <div class="server-status-bar">
+                  <div>
+                    <strong id="srv-status-title">Server Stopped</strong>
+                    <p class="muted" id="srv-status-sub">Configure and start a wire-compatible Sudoku server right from this machine.</p>
+                  </div>
+                  <div class="header-actions">
+                    <button type="button" class="btn primary" id="btn-srv-start">Start Server</button>
+                    <button type="button" class="btn danger" id="btn-srv-stop" disabled>Stop Server</button>
+                  </div>
+                </div>
+
+                <form id="form-server" class="form-grid">
+                  <label>Listen Port
+                    <input type="number" name="listen_port" value="8443" min="1" max="65535">
+                  </label>
+                  <label>AEAD Cipher
+                    <select name="aead">
+                      <option value="chacha20-poly1305">chacha20-poly1305</option>
+                      <option value="aes-128-gcm">aes-128-gcm</option>
+                      <option value="none">none</option>
+                    </select>
+                  </label>
+                  <label>Sudoku Mode (ASCII / Entropy)
+                    <select name="ascii">
+                      <option value="prefer_entropy">prefer_entropy (Low Hamming ~3.0)</option>
+                      <option value="prefer_ascii">prefer_ascii (&gt;98% Printable ASCII)</option>
+                      <option value="up_ascii_down_entropy">up_ascii_down_entropy</option>
+                      <option value="up_entropy_down_ascii">up_entropy_down_ascii</option>
+                    </select>
+                  </label>
+                  <label>HTTPMask Tunnel Mode
+                    <select name="httpmask_mode">
+                      <option value="auto">auto (CDN/HTTP Tunnel)</option>
+                      <option value="ws">ws (WebSocket)</option>
+                      <option value="stream">stream</option>
+                      <option value="poll">poll</option>
+                      <option value="legacy">legacy</option>
+                    </select>
+                  </label>
+                  <label class="span-2">Master Public Key (leave blank to auto-generate)
+                    <input type="text" name="key" placeholder="64-hex Ed25519 Master Public Key">
+                  </label>
+                  <label>Suspicious Traffic Action
+                    <select name="suspicious_action">
+                      <option value="silent">silent (Tarpit)</option>
+                      <option value="fallback">fallback (Forward to Decoy)</option>
+                    </select>
+                  </label>
+                  <label>Fallback Decoy Address (optional)
+                    <input type="text" name="fallback_address" placeholder="127.0.0.1:80">
+                  </label>
+                  <label class="switch-row span-2">
+                    <span>Pure Sudoku Downlink (uncheck for bandwidth-optimized packed downlink)</span>
+                    <input type="checkbox" name="enable_pure_downlink" switch checked>
+                  </label>
+                </form>
+
+                <div id="srv-client-key-box" class="code-box" hidden>
+                  <span class="muted">Client Available Private Key:</span>
+                  <code id="srv-client-key-val"></code>
+                </div>
+              </div>
+            </div>
+
+            <div role="tabpanel" id="panel-keygen" aria-labelledby="tab-keygen" hidden="until-found">
+              <div class="card panel-inner">
+                <p class="muted">Generate an Ed25519 Master Keypair and split client private keys (compatible with <code>./sudoku -keygen</code>).</p>
+                <div class="header-actions" style="margin-block: 1rem;">
+                  <button type="button" class="btn primary" id="btn-keygen">Generate New Ed25519 KeyPair</button>
+                  <button type="button" class="btn secondary" id="btn-split-key">Derive Additional Split Client Key</button>
+                </div>
+                <div class="key-outputs">
+                  <label>Master Public Key (put on Server)
+                    <input type="text" id="out-pub-key" readonly placeholder="Click Generate...">
+                  </label>
+                  <label>Available Private Key (put on Client)
+                    <input type="text" id="out-avail-key" readonly placeholder="Click Generate...">
+                  </label>
+                  <label>Master Private Key (keep secret to mint more split keys)
+                    <input type="text" id="out-master-key" readonly placeholder="Click Generate...">
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div role="tabpanel" id="panel-bench" aria-labelledby="tab-bench" hidden="until-found">
+              <div class="card panel-inner">
+                <p class="muted">Runs a real 512 KB end-to-end encrypted transfer through an ephemeral Sudoku 4×4 tunnel and inspects the live obfuscated wire stream.</p>
+                <div class="form-grid" style="margin-block: 1rem;">
+                  <label>Obfuscation Mode
+                    <select id="bench-ascii">
+                      <option value="prefer_ascii">prefer_ascii (&gt;98% Printable ASCII)</option>
+                      <option value="prefer_entropy">prefer_entropy (Low Hamming ~3.0)</option>
+                    </select>
+                  </label>
+                  <label>AEAD Cipher
+                    <select id="bench-aead">
+                      <option value="chacha20-poly1305">chacha20-poly1305</option>
+                      <option value="aes-128-gcm">aes-128-gcm</option>
+                    </select>
+                  </label>
+                  <label>HTTPMask Transport
+                    <select id="bench-http">
+                      <option value="auto">auto</option>
+                      <option value="ws">ws</option>
+                      <option value="legacy">legacy</option>
+                      <option value="none">none (raw TCP)</option>
+                    </select>
+                  </label>
+                </div>
+                <button type="button" class="btn primary" id="btn-run-bench">Run End-to-End Self-Test</button>
+                <pre id="bench-result" class="terminal-box" style="margin-top: 1rem;">Ready to benchmark...</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: CONNECTIONS & LOGS -->
+      <section class="view-section" id="view-connections" aria-label="Traffic and Logs" hidden>
+        <header class="view-header">
+          <div>
+            <h2>Live Connections &amp; Logs</h2>
+            <p class="muted">Real-time proxied streams and engine telemetry</p>
+          </div>
+        </header>
+
+        <div class="card" style="margin-bottom: 1.25rem;">
+          <div tabindex="0" role="region" aria-labelledby="conns-caption" class="table-wrapper">
+            <table class="data-table">
+              <caption id="conns-caption">Active VPN Connections</caption>
+              <thead>
+                <tr>
+                  <th>Target</th>
+                  <th>Proto</th>
+                  <th>Route</th>
+                  <th>Up</th>
+                  <th>Down</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="conns-tbody">
+                <tr><td colspan="6" class="muted">No active connections yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-inline">
+            <h3>Engine Logs</h3>
+            <button type="button" class="btn secondary small" id="btn-clear-logs">Clear View</button>
+          </div>
+          <div id="logs-box" class="terminal-box logs-scroller" role="log" aria-live="off"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: ADD / EDIT PROFILE -->
+  <dialog id="modal-profile" closedby="any" aria-labelledby="modal-profile-title">
+    <div class="dialog-header">
+      <h2 id="modal-profile-title">Add Sudoku Node</h2>
+      <button type="button" class="icon-btn" command="close" commandfor="modal-profile" aria-label="Close">✕</button>
+    </div>
+    <form id="form-profile" class="form-grid">
+      <input type="hidden" name="id">
+      <label class="span-2">Node Name
+        <input type="text" name="name" placeholder="Singapore Sudoku-01" required autofocus>
+      </label>
+      <label class="span-2">Server Address (host:port)
+        <input type="text" name="server_address" placeholder="vpn.example.com:8443" required>
+      </label>
+      <label class="span-2">Available Private Key (or PSK)
+        <input type="text" name="key" placeholder="128-hex Available Private Key" required>
+      </label>
+      <label>ASCII / Entropy Mode
+        <select name="ascii">
+          <option value="prefer_entropy">prefer_entropy</option>
+          <option value="prefer_ascii">prefer_ascii</option>
+          <option value="up_ascii_down_entropy">up_ascii_down_entropy</option>
+          <option value="up_entropy_down_ascii">up_entropy_down_ascii</option>
+        </select>
+      </label>
+      <label>AEAD Cipher
+        <select name="aead">
+          <option value="chacha20-poly1305">chacha20-poly1305</option>
+          <option value="aes-128-gcm">aes-128-gcm</option>
+          <option value="none">none</option>
+        </select>
+      </label>
+      <label>HTTPMask Mode
+        <select name="httpmask_mode">
+          <option value="auto">auto</option>
+          <option value="ws">ws</option>
+          <option value="stream">stream</option>
+          <option value="poll">poll</option>
+          <option value="legacy">legacy</option>
+        </select>
+      </label>
+      <label>Multiplex
+        <select name="multiplex">
+          <option value="auto">auto</option>
+          <option value="off">off</option>
+          <option value="on">on</option>
+        </select>
+      </label>
+      <label>Padding Min (%)
+        <input type="number" name="padding_min" value="5" min="0" max="100">
+      </label>
+      <label>Padding Max (%)
+        <input type="number" name="padding_max" value="15" min="0" max="100">
+      </label>
+      <label>HTTPMask Host / SNI (optional)
+        <input type="text" name="httpmask_host" placeholder="cdn.example.com">
+      </label>
+      <label>HTTPMask Path Root (optional)
+        <input type="text" name="httpmask_path" placeholder="aabbcc">
+      </label>
+      <label class="span-2">Custom XVP Table Layout (optional, e.g. xpxvvpvv)
+        <input type="text" name="custom_table" placeholder="Leave empty for default">
+      </label>
+      <label class="switch-row">
+        <span>Pure Sudoku Downlink</span>
+        <input type="checkbox" name="enable_pure_downlink" switch checked>
+      </label>
+      <label class="switch-row">
+        <span>HTTPMask TLS (HTTPS)</span>
+        <input type="checkbox" name="httpmask_tls" switch>
+      </label>
+      <label class="switch-row span-2">
+        <span>Disable HTTPMask completely (Raw TCP Sudoku)</span>
+        <input type="checkbox" name="httpmask_disable" switch>
+      </label>
+      <div class="dialog-actions span-2">
+        <button type="button" class="btn secondary" command="close" commandfor="modal-profile">Cancel</button>
+        <button type="submit" class="btn primary">Save Node</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: IMPORT SUDOKU:// LINK -->
+  <dialog id="modal-import" closedby="any" aria-labelledby="modal-import-title">
+    <div class="dialog-header">
+      <h2 id="modal-import-title">Import sudoku:// Short Link</h2>
+      <button type="button" class="icon-btn" command="close" commandfor="modal-import" aria-label="Close">✕</button>
+    </div>
+    <form id="form-import" class="form-stack">
+      <label>Paste Share Link
+        <textarea id="input-import-link" rows="4" placeholder="sudoku://eyJoIjoiZXhhbXBsZS5jb20iLCJwIjo4MDgwLC..." required autofocus></textarea>
+      </label>
+      <div class="dialog-actions">
+        <button type="button" class="btn secondary" command="close" commandfor="modal-import">Cancel</button>
+        <button type="submit" class="btn primary">Import Node</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: EXPORT SUDOKU:// LINK -->
+  <dialog id="modal-export" closedby="any" aria-labelledby="modal-export-title">
+    <div class="dialog-header">
+      <h2 id="modal-export-title">Export sudoku:// Share Link</h2>
+      <button type="button" class="icon-btn" command="close" commandfor="modal-export" aria-label="Close">✕</button>
+    </div>
+    <div class="form-stack">
+      <textarea id="output-export-link" rows="4" readonly></textarea>
+      <div class="dialog-actions">
+        <button type="button" class="btn secondary" command="close" commandfor="modal-export">Close</button>
+        <button type="button" class="btn primary" id="btn-copy-link">Copy Link</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
